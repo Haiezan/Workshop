@@ -77,6 +77,11 @@
   <ItemGroup>
     <Compile Include="GhcCreatePyramid.cs" />
     <Compile Include="GhReadYJK.cs" />
+    <Compile Include="ModelData\Beam.cs" />
+    <Compile Include="ModelData\Grid.cs" />
+    <Compile Include="ModelData\Joint.cs" />
+    <Compile Include="ModelData\Model.cs" />
+    <Compile Include="ModelData\StdFlr.cs" />
     <Compile Include="Pyramid.cs" />
     <Compile Include="WorkshopComponent.cs" />
     <Compile Include="WorkshopInfo.cs" />
