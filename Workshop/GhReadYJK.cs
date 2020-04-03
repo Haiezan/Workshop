@@ -37,6 +37,7 @@ namespace Workshop
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddCurveParameter("DisplayGrids", "DisplayGrids", "DisplayGrids", GH_ParamAccess.list);
+            pManager.AddSurfaceParameter("DisplayBeams", "DisplayBeams", "DisplayBeams", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -54,10 +55,13 @@ namespace Workshop
             model.ReadJointData();
             model.ReadGridtData();
             model.ReadBeamdata();
+            model.ReadBeamSect();
 
             List<LineCurve> displayGrids = model.GetGridLines();
+            List<Surface> displayBeams = model.GetBeamModel();
 
             DA.SetDataList("DisplayGrids", displayGrids);
+            DA.SetDataList("DisplayBeams", displayBeams);
 
             //读取梁信息
 

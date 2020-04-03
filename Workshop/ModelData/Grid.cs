@@ -14,5 +14,8 @@ namespace Workshop.ModelData
         public long Jt1ID;
         public long Jt2ID;
         public long AxidID;
+
+        public Point3d Jt1;
+        public Point3d Jt2;
     }
 }

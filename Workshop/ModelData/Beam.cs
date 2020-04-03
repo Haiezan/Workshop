@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rhino.Geometry;
 
 namespace Workshop.ModelData
 {
@@ -13,7 +14,71 @@ namespace Workshop.ModelData
         public long SectID;  //截面编号
         public long GridID;  //网格编号
 
+        public Grid grid;
+        public BeamSect beamSect;
 
+        public List<Point3d> GetSectPolyLineCurve()
+        {
+            if (beamSect == null) return null;
+            if (grid == null) return null;
 
+            //获取截面坐标
+            List<Point3d> point3ds0 = new List<Point3d>();
+            switch (beamSect.Kind)
+            {
+                case 1:
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B,  0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d( 0.5 * beamSect.B,  0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d( 0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    break;
+                case 2:
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.U, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.U,  0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d( 0.5 * beamSect.U,  0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d( 0.5 * beamSect.U, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.U, -0.5 * beamSect.H, 0));
+                    break;
+                case 13:
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, 0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(0.5 * beamSect.B, 0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    break;
+                default:
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, 0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(0.5 * beamSect.B, 0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    point3ds0.Add(new Point3d(-0.5 * beamSect.B, -0.5 * beamSect.H, 0));
+                    break;
+            }
+
+            //获取转换向量
+            Vector3d vectorZZ = Vector3d.Subtract(new Vector3d(grid.Jt2), new Vector3d(grid.Jt1));
+            Vector3d vectorZ1 = Vector3d.Divide(vectorZZ, vectorZZ.Length);
+            Vector3d vectorY1 = new Vector3d(0, 0, 1);
+            Vector3d vectorX1 = Vector3d.CrossProduct(vectorY1, vectorZ1);
+
+            //转置
+            Vector3d vectorX = new Vector3d(vectorX1.X, vectorY1.X, vectorZ1.X);
+            Vector3d vectorY = new Vector3d(vectorX1.Y, vectorY1.Y, vectorZ1.Y);
+            Vector3d vectorZ = new Vector3d(vectorX1.Z, vectorY1.Z, vectorZ1.Z);
+
+            //坐标转换
+            List<Point3d> point3ds = new List<Point3d>();
+            foreach(var point0 in point3ds0)
+            {
+                Point3d point = new Point3d();
+                point.X = Vector3d.Multiply(new Vector3d(point0), vectorX);
+                point.Y = Vector3d.Multiply(new Vector3d(point0), vectorY);
+                point.Z = Vector3d.Multiply(new Vector3d(point0), vectorZ);
+                point3ds.Add(Point3d.Add(point, grid.Jt1));
+                //point3ds.Add(point);
+            }
+            return point3ds;
+        }
     }
 }

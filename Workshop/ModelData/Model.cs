@@ -17,6 +17,7 @@ namespace Workshop.ModelData
         List<Joint> Joints = new List<Joint>();
         List<Grid> Grids = new List<Grid>();
         List<Beam> Beams=new List<Beam>();
+        List<BeamSect> BeamSects = new List<BeamSect>();
 
         #region StdFlr
         /// <summary>
@@ -111,6 +112,7 @@ namespace Workshop.ModelData
         }
         #endregion
 
+        #region Grid
         public void ReadGridtData()
         {
             SQLiteConnection conn;
@@ -132,8 +134,19 @@ namespace Workshop.ModelData
                 grid.Jt1ID = reader.GetInt64(2);
                 grid.Jt2ID = reader.GetInt64(3);
 
+                grid.Jt1 = new Point3d(GetX(grid.Jt1ID), GetY(grid.Jt1ID), GetZ(grid.Jt1ID));
+                grid.Jt2 = new Point3d(GetX(grid.Jt2ID), GetY(grid.Jt2ID), GetZ(grid.Jt2ID));
+
                 Grids.Add(grid);
             }
+        }
+        public Grid GetGrid(long ID)
+        {
+            foreach(var grid in Grids)
+            {
+                if (ID == grid.ID) return grid;
+            }
+            return null;
         }
         public List<LineCurve> GetGridLines()
         {
@@ -156,6 +169,7 @@ namespace Workshop.ModelData
             }
             return displayLines;
         }
+        #endregion
         /// <summary>
         /// 读取梁构件信息
         /// </summary>
@@ -182,6 +196,89 @@ namespace Workshop.ModelData
                 Beams.Add(beam);
        
             }
+        }
+        public void ReadBeamSect()
+        {
+            SQLiteConnection conn;
+            SQLiteCommand cmd;
+            SQLiteDataReader reader;
+
+            conn = new SQLiteConnection(@"Data Source = " + Path);
+            conn.Open();
+
+            cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT ID,No_,Name,mat,Kind,ShapeVal FROM tblBeamSect";
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                BeamSect beamSect = new BeamSect();
+                beamSect.ID = reader.GetInt64(0);
+                beamSect.No = reader.GetInt32(1);
+                beamSect.Name = reader.GetString(2);
+                beamSect.Mat = reader.GetInt32(3);
+                beamSect.Kind = reader.GetInt32(4);
+                string shapeVal = reader.GetString(5);
+                string[] str = shapeVal.Split(',');
+                switch(beamSect.Kind)
+                {
+                    case 1:
+                        beamSect.B = double.Parse(str[1]);
+                        beamSect.H = double.Parse(str[2]);
+                        break;
+                    case 2:
+                        beamSect.B = double.Parse(str[1]);
+                        beamSect.H = double.Parse(str[2]);
+                        beamSect.U = double.Parse(str[3]);
+                        beamSect.T = double.Parse(str[4]);
+                        beamSect.D = double.Parse(str[5]);
+                        beamSect.F = double.Parse(str[6]);
+                        break;
+                    default:
+                        break;    
+                }
+                BeamSects.Add(beamSect);
+            } 
+            
+        }
+        public BeamSect GetBeamSect(long ID)
+        {
+            foreach (var beamSect in BeamSects)
+            {
+                if (ID == beamSect.ID) return beamSect;
+            }
+            return null;
+        }
+        public List<Surface>  GetBeamModel()
+        {
+            List < Surface > DisplaySurfaces= new List<Surface>();
+
+            foreach(var beam in Beams)
+            {
+
+                beam.grid = GetGrid(beam.GridID);
+                beam.beamSect = GetBeamSect(beam.SectID);
+
+                double fX1 = GetX(beam.grid.Jt1ID);
+                double fY1 = GetY(beam.grid.Jt1ID);
+                double fZ1 = GetZ(beam.grid.Jt1ID);
+
+                double fX2 = GetX(beam.grid.Jt2ID);
+                double fY2 = GetY(beam.grid.Jt2ID);
+                double fZ2 = GetZ(beam.grid.Jt2ID);
+
+                Point3d A = new Point3d(fX1, fY1, fZ1);
+                Point3d B = new Point3d(fX2, fY2, fZ2);
+
+                List<Point3d> point3Ds = beam.GetSectPolyLineCurve();
+
+                PolylineCurve curve = new PolylineCurve(point3Ds);
+                Vector3d vector = new Vector3d(fX2 - fX1, fY2 - fY1, fZ2 - fZ1);
+
+                DisplaySurfaces.Add(Surface.CreateExtrusion(curve, vector));
+
+            }
+
+            return DisplaySurfaces;
         }
     }
 }
