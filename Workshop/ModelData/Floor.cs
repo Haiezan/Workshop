@@ -12,4 +12,13 @@ namespace Workshop.ModelData
         public long No;
         public double Height;
     }
+    class Floor
+    {
+        public long ID;
+        public long No;
+        public string Name;
+        public long StdFlrID;
+        public double LevelB;
+        public double Height;
+    }
 }

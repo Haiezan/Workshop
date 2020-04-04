@@ -54,6 +54,7 @@ namespace Workshop
             Model model = new Model();
             model.Path = sPath;
             model.ReadStdFlrData();
+            model.ReadFloorData();
             model.ReadJointData();
             model.ReadGridtData();
 

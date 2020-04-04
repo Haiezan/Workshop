@@ -13,6 +13,7 @@ namespace Workshop.ModelData
         public string Path;
 
         List<StdFlr> StdFlrs = new List<StdFlr>();
+        List<Floor> Floors = new List<Floor>();
 
         List<Joint> Joints = new List<Joint>();
         List<Grid> Grids = new List<Grid>();
@@ -51,6 +52,32 @@ namespace Workshop.ModelData
                 stdFlr.Height = reader.GetDouble(2);
 
                 StdFlrs.Add(stdFlr);
+            }
+        }
+        public void ReadFloorData()
+        {
+            SQLiteConnection conn;
+            SQLiteCommand cmd;
+            SQLiteDataReader reader;
+
+            conn = new SQLiteConnection(@"Data Source = " + Path);
+            conn.Open();
+
+            cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT ID,No_,Name,StdFlrID,LevelB,Height FROM tblFloor";
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Floor floor = new Floor();
+
+                floor.ID = reader.GetInt64(0);
+                floor.No = reader.GetInt64(1);
+                floor.Name = reader.GetString(2);
+                floor.StdFlrID = reader.GetInt64(3);
+                floor.LevelB = reader.GetDouble(4);
+                floor.Height = reader.GetDouble(5);
+
+                Floors.Add(floor);
             }
         }
         #endregion
