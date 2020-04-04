@@ -170,6 +170,7 @@ namespace Workshop.ModelData
             return displayLines;
         }
         #endregion
+        #region Beam
         /// <summary>
         /// 读取梁构件信息
         /// </summary>
@@ -253,6 +254,8 @@ namespace Workshop.ModelData
             }
             return null;
         }
+        #endregion
+
         public List<Surface>  GetBeamModel()
         {
             List < Surface > DisplaySurfaces= new List<Surface>();
