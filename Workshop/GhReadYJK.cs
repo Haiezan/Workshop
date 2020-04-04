@@ -54,8 +54,9 @@ namespace Workshop
             model.ReadStdFlrData();
             model.ReadJointData();
             model.ReadGridtData();
-            model.ReadBeamdata();
             model.ReadBeamSect();
+            model.ReadBeamdata();
+            
 
             List<LineCurve> displayGrids = model.GetGridLines();
             List<Surface> displayBeams = model.GetBeamModel();

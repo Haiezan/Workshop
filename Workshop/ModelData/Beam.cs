@@ -14,8 +14,21 @@ namespace Workshop.ModelData
         public long SectID;  //截面编号
         public long GridID;  //网格编号
 
-        public Grid grid;
         public BeamSect beamSect;
+
+        public Grid grid;
+        public Vector3d vector; //轴向向量
+        public Vector3d normal; //轴向向量归一化
+        public Grid Grid
+        {
+            set
+            {
+                grid = value;
+                vector = new Vector3d(grid.Jt2.X - grid.Jt1.X, grid.Jt2.Y - grid.Jt1.Y, grid.Jt2.Z - grid.Jt1.Z);
+                normal = Vector3d.Divide(vector, vector.Length);
+            }
+        }
+
 
         public List<Point3d> GetSectPolyLineCurve()
         {
@@ -23,7 +36,7 @@ namespace Workshop.ModelData
             if (grid == null) return null;
 
             //获取截面坐标
-            List<Point3d> point3ds0 = new List<Point3d>();
+            List<Point3d> point3ds0 = new List<Point3d>();  //局部坐标
             switch (beamSect.Kind)
             {
                 case 1:
@@ -57,18 +70,17 @@ namespace Workshop.ModelData
             }
 
             //获取转换向量
-            Vector3d vectorZZ = Vector3d.Subtract(new Vector3d(grid.Jt2), new Vector3d(grid.Jt1));
-            Vector3d vectorZ1 = Vector3d.Divide(vectorZZ, vectorZZ.Length);
+            //Vector3d vectorZZ = Vector3d.Subtract(new Vector3d(grid.Jt2), new Vector3d(grid.Jt1));
+            Vector3d vectorZ1 = normal;
             Vector3d vectorY1 = new Vector3d(0, 0, 1);
             Vector3d vectorX1 = Vector3d.CrossProduct(vectorY1, vectorZ1);
-
             //转置
             Vector3d vectorX = new Vector3d(vectorX1.X, vectorY1.X, vectorZ1.X);
             Vector3d vectorY = new Vector3d(vectorX1.Y, vectorY1.Y, vectorZ1.Y);
             Vector3d vectorZ = new Vector3d(vectorX1.Z, vectorY1.Z, vectorZ1.Z);
 
             //坐标转换
-            List<Point3d> point3ds = new List<Point3d>();
+            List<Point3d> point3ds = new List<Point3d>();   //整体坐标
             foreach(var point0 in point3ds0)
             {
                 Point3d point = new Point3d();

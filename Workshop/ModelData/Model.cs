@@ -193,8 +193,10 @@ namespace Workshop.ModelData
                 beam.SectID = reader.GetInt64(2);
                 beam.GridID = reader.GetInt64(3);
 
+                beam.Grid = GetGrid(beam.GridID);
+                beam.beamSect = GetBeamSect(beam.SectID);
+
                 Beams.Add(beam);
-       
             }
         }
         public void ReadBeamSect()
@@ -255,24 +257,21 @@ namespace Workshop.ModelData
             foreach(var beam in Beams)
             {
 
-                beam.grid = GetGrid(beam.GridID);
-                beam.beamSect = GetBeamSect(beam.SectID);
+                //double fX1 = GetX(beam.grid.Jt1ID);
+                //double fY1 = GetY(beam.grid.Jt1ID);
+                //double fZ1 = GetZ(beam.grid.Jt1ID);
 
-                double fX1 = GetX(beam.grid.Jt1ID);
-                double fY1 = GetY(beam.grid.Jt1ID);
-                double fZ1 = GetZ(beam.grid.Jt1ID);
+                //double fX2 = GetX(beam.grid.Jt2ID);
+                //double fY2 = GetY(beam.grid.Jt2ID);
+                //double fZ2 = GetZ(beam.grid.Jt2ID);
 
-                double fX2 = GetX(beam.grid.Jt2ID);
-                double fY2 = GetY(beam.grid.Jt2ID);
-                double fZ2 = GetZ(beam.grid.Jt2ID);
-
-                Point3d A = new Point3d(fX1, fY1, fZ1);
-                Point3d B = new Point3d(fX2, fY2, fZ2);
+                Point3d A = beam.grid.Jt1;
+                Point3d B = beam.grid.Jt2;
 
                 List<Point3d> point3Ds = beam.GetSectPolyLineCurve();
 
                 PolylineCurve curve = new PolylineCurve(point3Ds);
-                Vector3d vector = new Vector3d(fX2 - fX1, fY2 - fY1, fZ2 - fZ1);
+                Vector3d vector = beam.vector;
 
                 DisplaySurfaces.Add(Surface.CreateExtrusion(curve, vector));
 
