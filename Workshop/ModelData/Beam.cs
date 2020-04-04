@@ -29,11 +29,14 @@ namespace Workshop.ModelData
             }
         }
 
-
-        public List<Point3d> GetSectPolyLineCurve()
+        public Surface surface;
+        /// <summary>
+        /// 计算截面形状
+        /// </summary>
+        /// <returns></returns>
+        public void GetSectPolyLineCurve()
         {
-            if (beamSect == null) return null;
-            if (grid == null) return null;
+            if (beamSect == null || grid == null) return;
 
             //获取截面坐标
             List<Point3d> point3ds0 = new List<Point3d>();  //局部坐标
@@ -90,7 +93,13 @@ namespace Workshop.ModelData
                 point3ds.Add(Point3d.Add(point, grid.Jt1));
                 //point3ds.Add(point);
             }
-            return point3ds;
+
+            //延伸得到面
+            beamSect.curve = new PolylineCurve(point3ds);
+        }
+        public void GetBeaSurface()
+        {
+            surface=Surface.CreateExtrusion(beamSect.curve, vector);
         }
     }
 }

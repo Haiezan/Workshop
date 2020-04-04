@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rhino.Geometry;
 
 namespace Workshop.ModelData
 {
@@ -19,5 +20,7 @@ namespace Workshop.ModelData
         public double T;
         public double D;
         public double F;
+
+        public PolylineCurve curve;
     }
 }
