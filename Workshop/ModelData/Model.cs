@@ -16,8 +16,12 @@ namespace Workshop.ModelData
 
         List<Joint> Joints = new List<Joint>();
         List<Grid> Grids = new List<Grid>();
+
         List<Beam> Beams=new List<Beam>();
         List<BeamSect> BeamSects = new List<BeamSect>();
+
+        List<ColSect> ColSects = new List<ColSect>();
+        List<Column> Columns = new List<Column>();
 
         #region StdFlr
         /// <summary>
@@ -77,6 +81,14 @@ namespace Workshop.ModelData
                 Joints.Add(joint);
 
             }
+        }
+        public Joint GetJoint(long ID)
+        {
+            foreach (var joint in Joints)
+            {
+                if (ID == joint.ID) return joint;
+            }
+            return null;
         }
         public double GetX(long ID)
         {
@@ -256,6 +268,118 @@ namespace Workshop.ModelData
         }
         #endregion
 
+        #region Column
+        /// <summary>
+        /// 读取柱构件信息
+        /// </summary>
+        public void ReadColData()
+        {
+            SQLiteConnection conn;
+            SQLiteCommand cmd;
+            SQLiteDataReader reader;
+
+            conn = new SQLiteConnection(@"Data Source = " + Path);
+            conn.Open();
+
+            cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT ID,StdFlrID,SectID,JtID FROM tblColSeg";
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Column column = new Column();
+                column.ID = reader.GetInt64(0);
+                column.StdFlrID = reader.GetInt64(1);
+                column.SectID = reader.GetInt64(2);
+                column.JtID = reader.GetInt64(3);
+
+                column.Jt = GetJoint(column.JtID);
+                column.colSect = GetColSect(column.SectID);
+                column.Grid = GetColGrid(column.StdFlrID,column.Jt);
+
+                column.GetSectPolyLineCurve();
+                column.GetColumnSurface();
+
+                Columns.Add(column);
+            }
+        }
+        public void ReadColSect()
+        {
+            SQLiteConnection conn;
+            SQLiteCommand cmd;
+            SQLiteDataReader reader;
+
+            conn = new SQLiteConnection(@"Data Source = " + Path);
+            conn.Open();
+
+            cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT ID,No_,Name,mat,Kind,ShapeVal FROM tblColSect";
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                ColSect colSect = new ColSect();
+                colSect.ID = reader.GetInt64(0);
+                colSect.No = reader.GetInt32(1);
+                colSect.Name = reader.GetString(2);
+                colSect.Mat = reader.GetInt32(3);
+                colSect.Kind = reader.GetInt32(4);
+                string shapeVal = reader.GetString(5);
+                string[] str = shapeVal.Split(',');
+                switch (colSect.Kind)
+                {
+                    case 1:
+                        colSect.B = double.Parse(str[1]);
+                        colSect.H = double.Parse(str[2]);
+                        break;
+                    case 2:
+                        colSect.B = double.Parse(str[1]);
+                        colSect.H = double.Parse(str[2]);
+                        colSect.U = double.Parse(str[3]);
+                        colSect.T = double.Parse(str[4]);
+                        colSect.D = double.Parse(str[5]);
+                        colSect.F = double.Parse(str[6]);
+                        break;
+                    default:
+                        break;
+                }
+                ColSects.Add(colSect);
+            }
+        }
+        public ColSect GetColSect(long ID)
+        {
+            foreach (var colSect in ColSects)
+            {
+                if (ID == colSect.ID) return colSect;
+            }
+            return null;
+        }
+        public Grid GetColGrid(long StdFlrID,Joint Jt)
+        {
+            Grid grid=new Grid();
+
+            double fZ2 = 0, fZ1 = 0;
+            foreach (var stdflr in StdFlrs)
+            {
+                if (stdflr.ID == StdFlrID)
+                {
+                    fZ1 = fZ2;
+                    fZ2 += stdflr.Height;
+                    break;
+                }
+                
+                else
+                {
+                    fZ2 += stdflr.Height;
+                }
+                    
+            }
+
+            grid.Jt1 = new Point3d(Jt.X, Jt.Y, fZ1);
+            grid.Jt2 = new Point3d(Jt.X, Jt.Y, fZ2);
+            return grid;
+        }
+
+        #endregion
+
         public List<Surface>  GetBeamModel()
         {
             List < Surface > DisplaySurfaces= new List<Surface>();
@@ -263,6 +387,17 @@ namespace Workshop.ModelData
             foreach(var beam in Beams)
             {
                 DisplaySurfaces.Add(beam.surface);
+            }
+
+            return DisplaySurfaces;
+        }
+        public List<Surface> GetColumnModel()
+        {
+            List<Surface> DisplaySurfaces = new List<Surface>();
+
+            foreach (var column in Columns)
+            {
+                DisplaySurfaces.Add(column.surface);
             }
 
             return DisplaySurfaces;

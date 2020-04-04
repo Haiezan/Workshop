@@ -38,6 +38,7 @@ namespace Workshop
         {
             pManager.AddCurveParameter("DisplayGrids", "DisplayGrids", "DisplayGrids", GH_ParamAccess.list);
             pManager.AddSurfaceParameter("DisplayBeams", "DisplayBeams", "DisplayBeams", GH_ParamAccess.list);
+            pManager.AddSurfaceParameter("DisplayColumns", "DisplayColumns", "DisplayColumns", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -54,15 +55,21 @@ namespace Workshop
             model.ReadStdFlrData();
             model.ReadJointData();
             model.ReadGridtData();
+
             model.ReadBeamSect();
             model.ReadBeamdata();
+
+            model.ReadColSect();
+            model.ReadColData();
             
 
             List<LineCurve> displayGrids = model.GetGridLines();
             List<Surface> displayBeams = model.GetBeamModel();
+            List<Surface> displayColumns = model.GetColumnModel();
 
             DA.SetDataList("DisplayGrids", displayGrids);
             DA.SetDataList("DisplayBeams", displayBeams);
+            DA.SetDataList("DisplayColumns", displayColumns);
 
             //读取梁信息
 

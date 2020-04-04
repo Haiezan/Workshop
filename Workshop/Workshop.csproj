@@ -79,6 +79,8 @@
     <Compile Include="GhReadYJK.cs" />
     <Compile Include="ModelData\Beam.cs" />
     <Compile Include="ModelData\BeamSect.cs" />
+    <Compile Include="ModelData\ColSect.cs" />
+    <Compile Include="ModelData\Column.cs" />
     <Compile Include="ModelData\Grid.cs" />
     <Compile Include="ModelData\Joint.cs" />
     <Compile Include="ModelData\Model.cs" />
