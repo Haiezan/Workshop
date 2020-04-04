@@ -196,6 +196,9 @@ namespace Workshop.ModelData
                 beam.Grid = GetGrid(beam.GridID);
                 beam.beamSect = GetBeamSect(beam.SectID);
 
+                beam.GetSectPolyLineCurve();
+                beam.GetBeamSurface();
+
                 Beams.Add(beam);
             }
         }
@@ -256,9 +259,6 @@ namespace Workshop.ModelData
 
             foreach(var beam in Beams)
             {
-                beam.GetSectPolyLineCurve();
-                beam.GetBeaSurface();
-
                 DisplaySurfaces.Add(beam.surface);
             }
 

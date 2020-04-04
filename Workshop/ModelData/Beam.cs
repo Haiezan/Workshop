@@ -97,7 +97,7 @@ namespace Workshop.ModelData
             //延伸得到面
             beamSect.curve = new PolylineCurve(point3ds);
         }
-        public void GetBeaSurface()
+        public void GetBeamSurface()
         {
             surface=Surface.CreateExtrusion(beamSect.curve, vector);
         }
