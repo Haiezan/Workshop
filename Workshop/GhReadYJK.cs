@@ -39,6 +39,7 @@ namespace Workshop
             pManager.AddCurveParameter("DisplayGrids", "DisplayGrids", "DisplayGrids", GH_ParamAccess.list);
             pManager.AddSurfaceParameter("DisplayBeams", "DisplayBeams", "DisplayBeams", GH_ParamAccess.list);
             pManager.AddSurfaceParameter("DisplayColumns", "DisplayColumns", "DisplayColumns", GH_ParamAccess.list);
+            pManager.AddSurfaceParameter("DisplayWalls", "DisplayWalls", "DisplayWalls", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -61,21 +62,24 @@ namespace Workshop
 
             model.ReadColSect();
             model.ReadColData();
+
+            model.ReadWallSect();
+            model.ReadWallData();
             
 
             List<LineCurve> displayGrids = model.GetGridLines();
             List<Surface> displayBeams = model.GetBeamModel();
             List<Surface> displayColumns = model.GetColumnModel();
+            List<Surface> displayWalls = model.GetWallModel();
+
 
             DA.SetDataList("DisplayGrids", displayGrids);
             DA.SetDataList("DisplayBeams", displayBeams);
             DA.SetDataList("DisplayColumns", displayColumns);
-
-            //读取梁信息
-
+            DA.SetDataList("DisplayWalls", displayWalls);
 
         }
-
+         
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>

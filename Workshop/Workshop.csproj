@@ -85,7 +85,9 @@
     <Compile Include="ModelData\Joint.cs" />
     <Compile Include="ModelData\Model.cs" />
     <Compile Include="ModelData\StdFlr.cs" />
+    <Compile Include="ModelData\Wall.cs" />
     <Compile Include="Pyramid.cs" />
+    <Compile Include="WallSect.cs" />
     <Compile Include="WorkshopComponent.cs" />
     <Compile Include="WorkshopInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

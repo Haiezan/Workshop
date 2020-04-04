@@ -23,6 +23,9 @@ namespace Workshop.ModelData
         List<ColSect> ColSects = new List<ColSect>();
         List<Column> Columns = new List<Column>();
 
+        List<WallSect> WallSects = new List<WallSect>();
+        List<Wall> Walls = new List<Wall>();
+
         #region StdFlr
         /// <summary>
         /// 读取标准层信息
@@ -377,7 +380,96 @@ namespace Workshop.ModelData
             grid.Jt2 = new Point3d(Jt.X, Jt.Y, fZ2);
             return grid;
         }
+        #endregion
 
+        #region Wall
+        public void ReadWallData()
+        {
+            SQLiteConnection conn;
+            SQLiteCommand cmd;
+            SQLiteDataReader reader;
+
+            conn = new SQLiteConnection(@"Data Source = " + Path);
+            conn.Open();
+
+            cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT ID,StdFlrID,SectID,GridID FROM tblWallSeg";
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Wall wall = new Wall();
+                wall.ID = reader.GetInt64(0);
+                wall.StdFlrID = reader.GetInt64(1);
+                wall.SectID = reader.GetInt64(2);
+                wall.GridID = reader.GetInt64(3);
+
+                wall.grid = GetGrid(wall.GridID);
+                wall.wallSect = GetWallSect(wall.SectID);
+                wall.ExtrudeDirection = GetExtrudeDirection(wall.StdFlrID);
+
+                wall.GetSectPolyLineCurve();
+                wall.GetWallSurface();
+
+                Walls.Add(wall);
+            }
+        }
+
+        public void ReadWallSect()
+        {
+            SQLiteConnection conn;
+            SQLiteCommand cmd;
+            SQLiteDataReader reader;
+
+            conn = new SQLiteConnection(@"Data Source = " + Path);
+            conn.Open();
+
+            cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT ID,No_,mat,Kind,B,H,T2 FROM tblWallSect";
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                WallSect wallSect = new WallSect();
+                wallSect.ID = reader.GetInt64(0);
+                wallSect.No = reader.GetInt32(1);
+                wallSect.Mat = reader.GetInt32(2);
+                wallSect.Kind = reader.GetInt32(3);
+                wallSect.B = reader.GetDouble(4);
+                wallSect.H = reader.GetDouble(5);
+                wallSect.T2 = reader.GetDouble(6);
+
+                WallSects.Add(wallSect);
+            }
+        }
+        public WallSect GetWallSect(long ID)
+        {
+            foreach (var wallSect in WallSects)
+            {
+                if (ID == wallSect.ID) return wallSect;
+            }
+            return null;
+        }
+        public Vector3d GetExtrudeDirection(long StdFlrID)
+        {
+            double fZ2 = 0, fZ1 = 0;
+            foreach (var stdflr in StdFlrs)
+            {
+                if (stdflr.ID == StdFlrID)
+                {
+                    fZ1 = fZ2;
+                    fZ2 += stdflr.Height;
+                    break;
+                }
+
+                else
+                {
+                    fZ2 += stdflr.Height;
+                }
+
+            }
+
+            Vector3d vector = new Vector3d(0, 0, fZ1 - fZ2);
+            return vector;
+        }
         #endregion
 
         public List<Surface>  GetBeamModel()
@@ -398,6 +490,17 @@ namespace Workshop.ModelData
             foreach (var column in Columns)
             {
                 DisplaySurfaces.Add(column.surface);
+            }
+
+            return DisplaySurfaces;
+        }
+        public List<Surface> GetWallModel()
+        {
+            List<Surface> DisplaySurfaces = new List<Surface>();
+
+            foreach (var wall in Walls)
+            {
+                DisplaySurfaces.Add(wall.surface);
             }
 
             return DisplaySurfaces;
