@@ -255,7 +255,9 @@ namespace Workshop.ModelData
                         beamSect.F = double.Parse(str[6]);
                         break;
                     default:
-                        break;    
+                        beamSect.B = double.Parse(str[1]);
+                        beamSect.H = double.Parse(str[2]);
+                        break;  
                 }
                 BeamSects.Add(beamSect);
             } 
@@ -341,7 +343,29 @@ namespace Workshop.ModelData
                         colSect.D = double.Parse(str[5]);
                         colSect.F = double.Parse(str[6]);
                         break;
+                    case 15:
+                        colSect.B = double.Parse(str[1]);
+                        colSect.H = double.Parse(str[2]);
+                        colSect.U = double.Parse(str[3]);
+                        colSect.T = double.Parse(str[4]);
+                        colSect.D = double.Parse(str[5]);
+                        colSect.F = double.Parse(str[6]);
+                        break;
+                    case 101:
+                        colSect.B = double.Parse(str[1]);
+                        colSect.H = double.Parse(str[2]);
+                        colSect.U = double.Parse(str[3]);
+                        colSect.T = double.Parse(str[4]);
+                        colSect.D = double.Parse(str[5]);
+                        colSect.F = double.Parse(str[6]);
+                        colSect.U1 = double.Parse(str[7]);
+                        colSect.T1 = double.Parse(str[8]);
+                        colSect.D1 = double.Parse(str[9]);
+                        colSect.F1 = double.Parse(str[10]);
+                        break;
                     default:
+                        colSect.B = double.Parse(str[1]);
+                        colSect.H = double.Parse(str[2]);
                         break;
                 }
                 ColSects.Add(colSect);

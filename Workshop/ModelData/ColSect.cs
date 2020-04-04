@@ -20,6 +20,10 @@ namespace Workshop.ModelData
         public double T;
         public double D;
         public double F;
+        public double U1;
+        public double T1;
+        public double D1;
+        public double F1;
 
         public PolylineCurve curve;
     }
