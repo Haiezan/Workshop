@@ -71,9 +71,9 @@ namespace Workshop.ModelData
 
             wallSect.curve = new PolylineCurve(point3ds);
         }
-        public void GetWallSurface()
+        public Surface GetWallSurface()
         {
-            surface = Surface.CreateExtrusion(wallSect.curve, ExtrudeDirection);
+            return surface = Surface.CreateExtrusion(wallSect.curve, ExtrudeDirection);
         }
     }
 }

@@ -73,9 +73,9 @@ namespace Workshop.ModelData
             //延伸得到面
             colSect.curve = new PolylineCurve(point3ds);
         }
-        public void GetColumnSurface()
+        public Surface GetColumnSurface()
         {
-            surface = Surface.CreateExtrusion(colSect.curve, ExtrudeDirection);
+            return surface = Surface.CreateExtrusion(colSect.curve, ExtrudeDirection);
         }
     }
 }

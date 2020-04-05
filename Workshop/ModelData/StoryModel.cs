@@ -22,6 +22,7 @@ namespace Workshop.ModelData
         public List<Column> Columns = new List<Column>();
         public List<Wall> Walls = new List<Wall>();
 
+        public List<FloorSurface> FloorSurfaces = new List<FloorSurface>();
         public Joint GetJoint(long ID)
         {
             foreach(var joint in Joints)
@@ -96,27 +97,34 @@ namespace Workshop.ModelData
         }
 
         //设置标高
-        public void SetLevel(double Levelnew)
+        public List<Surface> SetLevel(double newLevel, double newHeight = 0)
         {
+            if(newHeight<1E-3)  newHeight = Height;
+
+            List<Surface> DisplaySurface = new List<Surface>();
             foreach(var joint in Joints)
             {
-                joint.Point.Z = Levelnew;
+                joint.Point.Z = newLevel;
             }
             foreach(var beam in Beams)
             {
                 beam.GetSectPolyLineCurve();
-                beam.GetBeamSurface();
+                DisplaySurface.Add(beam.GetBeamSurface());
             }
             foreach(var column in Columns)
             {
                 column.GetSectPolyLineCurve();
-                column.GetColumnSurface();
+                column.ExtrudeDirection= new Vector3d(0, 0, -1 * newHeight);
+                DisplaySurface.Add(column.GetColumnSurface());
             }
             foreach(var wall in Walls)
             {
                 wall.GetSectPolyLineCurve();
-                wall.GetWallSurface();
+                wall.ExtrudeDirection = new Vector3d(0, 0, -1 * newHeight);
+                DisplaySurface.Add(wall.GetWallSurface());
             }
+
+            return DisplaySurface;
         }
     }
 }

@@ -449,5 +449,32 @@ namespace Workshop.ModelData
             return null;
         }
         #endregion
+
+        #region Story
+        public List<Surface> GetModel(int iStart = 0, int iEnd = 0)
+        {
+            if (iEnd == 0) iEnd = Floors.Count;
+
+            List<Surface> DisplaySurfaces = new List<Surface>();
+
+            for (int i = iStart; i < iEnd; i++) 
+            {
+                Floor floor = Floors[i];
+                StoryModel storyModel = GetStdStoryModel(floor.StdFlrID);
+                FloorSurface floorSurface = new FloorSurface();
+
+                floorSurface.ID = floor.ID;
+                floorSurface.StdFlrID = floor.StdFlrID;
+                floorSurface.Height = floor.Height;
+                floorSurface.Level = floor.LevelB;
+
+                floorSurface.DisplaySurface.AddRange(storyModel.SetLevel(floor.LevelB + floor.Height, floor.Height));
+                storyModel.FloorSurfaces.Add(floorSurface);
+
+                DisplaySurfaces.AddRange(floorSurface.DisplaySurface);
+            }
+            return DisplaySurfaces;
+        }
+        #endregion
     }
 }
