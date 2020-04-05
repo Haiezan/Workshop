@@ -85,6 +85,7 @@
     <Compile Include="ModelData\Joint.cs" />
     <Compile Include="ModelData\Model.cs" />
     <Compile Include="ModelData\Floor.cs" />
+    <Compile Include="ModelData\StoryModel.cs" />
     <Compile Include="ModelData\Wall.cs" />
     <Compile Include="Pyramid.cs" />
     <Compile Include="WallSect.cs" />

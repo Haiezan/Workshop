@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rhino.Geometry;
 
 namespace Workshop.ModelData
 {
@@ -10,8 +11,9 @@ namespace Workshop.ModelData
     {
         public long ID;
         public long StdFlrID;
-        public double X;
-        public double Y;
+
+        public Point3d Point;
+
         public double HDiff;
     }
 }

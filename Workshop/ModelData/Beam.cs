@@ -24,7 +24,7 @@ namespace Workshop.ModelData
             set
             {
                 grid = value;
-                vector = new Vector3d(grid.Jt2.X - grid.Jt1.X, grid.Jt2.Y - grid.Jt1.Y, grid.Jt2.Z - grid.Jt1.Z);
+                vector = new Vector3d(grid.Jt2.Point.X - grid.Jt1.Point.X, grid.Jt2.Point.Y - grid.Jt1.Point.Y, grid.Jt2.Point.Z - grid.Jt1.Point.Z);
                 normal = Vector3d.Divide(vector, vector.Length);
             }
         }
@@ -90,7 +90,7 @@ namespace Workshop.ModelData
                 point.X = Vector3d.Multiply(new Vector3d(point0), vectorX);
                 point.Y = Vector3d.Multiply(new Vector3d(point0), vectorY);
                 point.Z = Vector3d.Multiply(new Vector3d(point0), vectorZ);
-                point3ds.Add(Point3d.Add(point, grid.Jt1));
+                point3ds.Add(Point3d.Add(point, grid.Jt1.Point));
                 //point3ds.Add(point);
             }
 

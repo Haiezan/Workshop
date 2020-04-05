@@ -15,17 +15,21 @@ namespace Workshop.ModelData
         List<StdFlr> StdFlrs = new List<StdFlr>();
         List<Floor> Floors = new List<Floor>();
 
-        List<Joint> Joints = new List<Joint>();
-        List<Grid> Grids = new List<Grid>();
+        public List<StoryModel> StdStoryModels = new List<StoryModel>();
+        public List<StoryModel> StoryModels = new List<StoryModel>();
 
-        List<Beam> Beams=new List<Beam>();
+
+        //List<Joint> Joints = new List<Joint>();
+        //List<Grid> Grids = new List<Grid>();
+
+        //List<Beam> Beams=new List<Beam>();
         List<BeamSect> BeamSects = new List<BeamSect>();
 
         List<ColSect> ColSects = new List<ColSect>();
-        List<Column> Columns = new List<Column>();
+        //List<Column> Columns = new List<Column>();
 
         List<WallSect> WallSects = new List<WallSect>();
-        List<Wall> Walls = new List<Wall>();
+        //List<Wall> Walls = new List<Wall>();
 
         #region StdFlr
         /// <summary>
@@ -46,13 +50,27 @@ namespace Workshop.ModelData
             while (reader.Read())
             {
                 StdFlr stdFlr = new StdFlr();
-
                 stdFlr.ID = reader.GetInt64(0);
                 stdFlr.No = reader.GetInt64(1);
                 stdFlr.Height = reader.GetDouble(2);
-
                 StdFlrs.Add(stdFlr);
+
+                StoryModel storyModel = new StoryModel();
+                storyModel.StdFlrID = stdFlr.ID;
+                storyModel.FloorID = -1;
+                storyModel.No = stdFlr.No;
+                storyModel.Height = stdFlr.Height;
+                storyModel.Level = 0;
+                StdStoryModels.Add(storyModel);
             }
+        }
+        public StoryModel GetStdStoryModel(long StdFlr)
+        {
+            foreach(var storyModel in StdStoryModels)
+            {
+                if (storyModel.StdFlrID == StdFlr) return storyModel;
+            }
+            return null;
         }
         public void ReadFloorData()
         {
@@ -69,16 +87,30 @@ namespace Workshop.ModelData
             while (reader.Read())
             {
                 Floor floor = new Floor();
-
                 floor.ID = reader.GetInt64(0);
                 floor.No = reader.GetInt64(1);
                 floor.Name = reader.GetString(2);
                 floor.StdFlrID = reader.GetInt64(3);
                 floor.LevelB = reader.GetDouble(4);
                 floor.Height = reader.GetDouble(5);
-
                 Floors.Add(floor);
+
+                StoryModel storyModel = new StoryModel();
+                storyModel.StdFlrID = floor.StdFlrID;
+                storyModel.FloorID = floor.ID;
+                storyModel.No = floor.No;
+                storyModel.Height = floor.Height;
+                storyModel.Level = floor.LevelB;
+                StoryModels.Add(storyModel);
             }
+        }
+        public StoryModel GetStoryModel(long FlrID)
+        {
+            foreach (var storyModel in StoryModels)
+            {
+                if (storyModel.FloorID == FlrID) return storyModel;
+            }
+            return null;
         }
         #endregion
 
@@ -104,54 +136,19 @@ namespace Workshop.ModelData
                 Joint joint = new Joint();
                 joint.ID = reader.GetInt64(0);
                 joint.StdFlrID = reader.GetInt64(1);
-                joint.X = reader.GetDouble(2);
-                joint.Y = reader.GetDouble(3);
+
+                StoryModel storyModel = GetStdStoryModel(joint.StdFlrID);
+                double fZ = storyModel.Height;
+                double fX= reader.GetDouble(2);
+                double fY= reader.GetDouble(3);
+                joint.Point = new Point3d(fX, fY, fZ);
+
                 joint.HDiff = reader.GetDouble(4);
 
-                Joints.Add(joint);
-
+                storyModel.Joints.Add(joint);
             }
         }
-        public Joint GetJoint(long ID)
-        {
-            foreach (var joint in Joints)
-            {
-                if (ID == joint.ID) return joint;
-            }
-            return null;
-        }
-        public double GetX(long ID)
-        {
-            foreach(var joint in Joints)
-            {
-                if (joint.ID == ID) return joint.X;
-            }
-            return 0;
-        }
-        public double GetY(long ID)
-        {
-            foreach (var joint in Joints)
-            {
-                if (joint.ID == ID) return joint.Y;
-            }
-            return 0;
-        }
-        public double GetZ(long ID)
-        {
-            foreach (var joint in Joints)
-            {
-                if (joint.ID == ID)
-                {
-                    double fZ = 0;
-                    foreach(var stdflr in StdFlrs)
-                    {
-                        if (stdflr.ID == joint.StdFlrID) return fZ + stdflr.Height;
-                        else fZ += stdflr.Height;
-                    }
-                }
-            }
-            return 0;
-        }
+        
         #endregion
 
         #region Grid
@@ -176,40 +173,12 @@ namespace Workshop.ModelData
                 grid.Jt1ID = reader.GetInt64(2);
                 grid.Jt2ID = reader.GetInt64(3);
 
-                grid.Jt1 = new Point3d(GetX(grid.Jt1ID), GetY(grid.Jt1ID), GetZ(grid.Jt1ID));
-                grid.Jt2 = new Point3d(GetX(grid.Jt2ID), GetY(grid.Jt2ID), GetZ(grid.Jt2ID));
+                StoryModel storyModel = GetStdStoryModel(grid.StdFlrID);
+                grid.Jt1 = storyModel.GetJoint(grid.Jt1ID);
+                grid.Jt2 = storyModel.GetJoint(grid.Jt2ID);
 
-                Grids.Add(grid);
+                storyModel.Grids.Add(grid);
             }
-        }
-        public Grid GetGrid(long ID)
-        {
-            foreach(var grid in Grids)
-            {
-                if (ID == grid.ID) return grid;
-            }
-            return null;
-        }
-        public List<LineCurve> GetGridLines()
-        {
-            List<LineCurve> displayLines = new List<LineCurve>();
-
-            foreach (var grid in Grids)
-            {
-                double fX1 = GetX(grid.Jt1ID);
-                double fY1 = GetY(grid.Jt1ID);
-                double fZ1 = GetZ(grid.Jt1ID);
-
-                double fX2 = GetX(grid.Jt2ID);
-                double fY2 = GetY(grid.Jt2ID);
-                double fZ2 = GetZ(grid.Jt2ID);
-
-                Point3d A = new Point3d(fX1, fY1, fZ1);
-                Point3d B = new Point3d(fX2, fY2, fZ2);
-
-                displayLines.Add(new LineCurve(A, B));
-            }
-            return displayLines;
         }
         #endregion
         #region Beam
@@ -236,13 +205,14 @@ namespace Workshop.ModelData
                 beam.SectID = reader.GetInt64(2);
                 beam.GridID = reader.GetInt64(3);
 
-                beam.Grid = GetGrid(beam.GridID);
+                StoryModel storyModel = GetStdStoryModel(beam.StdFlrID);
+                beam.Grid = storyModel.GetGrid(beam.GridID);
                 beam.beamSect = GetBeamSect(beam.SectID);
 
                 beam.GetSectPolyLineCurve();
                 beam.GetBeamSurface();
 
-                Beams.Add(beam);
+                storyModel.Beams.Add(beam);
             }
         }
         public void ReadBeamSect()
@@ -324,14 +294,17 @@ namespace Workshop.ModelData
                 column.SectID = reader.GetInt64(2);
                 column.JtID = reader.GetInt64(3);
 
-                column.Jt = GetJoint(column.JtID);
+                StoryModel storyModel = GetStdStoryModel(column.StdFlrID);
+                column.Jt = storyModel.GetJoint(column.JtID);
                 column.colSect = GetColSect(column.SectID);
-                column.Grid = GetColGrid(column.StdFlrID,column.Jt);
+                //column.Grid.Jt1 = column.Jt.Point;
+                //column.Grid.Jt2 = new Point3d(column.Jt.Point.X, column.Jt.Point.Y, 0);
+                column.ExtrudeDirection = new Vector3d(0, 0, -1 * storyModel.Height);
 
                 column.GetSectPolyLineCurve();
                 column.GetColumnSurface();
 
-                Columns.Add(column);
+                storyModel.Columns.Add(column);
             }
         }
         public void ReadColSect()
@@ -406,31 +379,6 @@ namespace Workshop.ModelData
             }
             return null;
         }
-        public Grid GetColGrid(long StdFlrID,Joint Jt)
-        {
-            Grid grid=new Grid();
-
-            double fZ2 = 0, fZ1 = 0;
-            foreach (var stdflr in StdFlrs)
-            {
-                if (stdflr.ID == StdFlrID)
-                {
-                    fZ1 = fZ2;
-                    fZ2 += stdflr.Height;
-                    break;
-                }
-                
-                else
-                {
-                    fZ2 += stdflr.Height;
-                }
-                    
-            }
-
-            grid.Jt1 = new Point3d(Jt.X, Jt.Y, fZ1);
-            grid.Jt2 = new Point3d(Jt.X, Jt.Y, fZ2);
-            return grid;
-        }
         #endregion
 
         #region Wall
@@ -454,17 +402,18 @@ namespace Workshop.ModelData
                 wall.SectID = reader.GetInt64(2);
                 wall.GridID = reader.GetInt64(3);
 
-                wall.grid = GetGrid(wall.GridID);
+                StoryModel storyModel = GetStdStoryModel(wall.StdFlrID);
+
+                wall.Grid = storyModel.GetGrid(wall.GridID);
                 wall.wallSect = GetWallSect(wall.SectID);
-                wall.ExtrudeDirection = GetExtrudeDirection(wall.StdFlrID);
+                wall.ExtrudeDirection = new Vector3d(0, 0, -1 * storyModel.Height);
 
                 wall.GetSectPolyLineCurve();
                 wall.GetWallSurface();
 
-                Walls.Add(wall);
+                storyModel.Walls.Add(wall);
             }
         }
-
         public void ReadWallSect()
         {
             SQLiteConnection conn;
@@ -499,62 +448,6 @@ namespace Workshop.ModelData
             }
             return null;
         }
-        public Vector3d GetExtrudeDirection(long StdFlrID)
-        {
-            double fZ2 = 0, fZ1 = 0;
-            foreach (var stdflr in StdFlrs)
-            {
-                if (stdflr.ID == StdFlrID)
-                {
-                    fZ1 = fZ2;
-                    fZ2 += stdflr.Height;
-                    break;
-                }
-
-                else
-                {
-                    fZ2 += stdflr.Height;
-                }
-
-            }
-
-            Vector3d vector = new Vector3d(0, 0, fZ1 - fZ2);
-            return vector;
-        }
         #endregion
-
-        public List<Surface>  GetBeamModel()
-        {
-            List < Surface > DisplaySurfaces= new List<Surface>();
-
-            foreach(var beam in Beams)
-            {
-                DisplaySurfaces.Add(beam.surface);
-            }
-
-            return DisplaySurfaces;
-        }
-        public List<Surface> GetColumnModel()
-        {
-            List<Surface> DisplaySurfaces = new List<Surface>();
-
-            foreach (var column in Columns)
-            {
-                DisplaySurfaces.Add(column.surface);
-            }
-
-            return DisplaySurfaces;
-        }
-        public List<Surface> GetWallModel()
-        {
-            List<Surface> DisplaySurfaces = new List<Surface>();
-
-            foreach (var wall in Walls)
-            {
-                DisplaySurfaces.Add(wall.surface);
-            }
-
-            return DisplaySurfaces;
-        }
     }
 }

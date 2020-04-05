@@ -21,6 +21,8 @@ namespace Workshop.ModelData
         public Vector3d vector = new Vector3d(0, 0, 1); //轴向向量
         public Vector3d normal = new Vector3d(0, 0, 1); //轴向向量归一化
 
+        public Vector3d ExtrudeDirection;
+
         public Surface surface;
         public void GetSectPolyLineCurve()
         {
@@ -64,7 +66,7 @@ namespace Workshop.ModelData
                 point.X = Vector3d.Multiply(new Vector3d(point0), vectorX);
                 point.Y = Vector3d.Multiply(new Vector3d(point0), vectorY);
                 point.Z = Vector3d.Multiply(new Vector3d(point0), vectorZ);
-                point3ds.Add(Point3d.Add(point, Grid.Jt2));
+                point3ds.Add(Point3d.Add(point, Jt.Point));
                 //point3ds.Add(point);
             }
 
@@ -73,8 +75,7 @@ namespace Workshop.ModelData
         }
         public void GetColumnSurface()
         {
-            vector = new Vector3d(Grid.Jt1.X - Grid.Jt2.X, Grid.Jt1.Y - Grid.Jt2.Y, Grid.Jt1.Z - Grid.Jt2.Z);
-            surface = Surface.CreateExtrusion(colSect.curve, vector);
+            surface = Surface.CreateExtrusion(colSect.curve, ExtrudeDirection);
         }
     }
 }

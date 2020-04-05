@@ -29,6 +29,7 @@ namespace Workshop
             pManager.AddNumberParameter("Length", "Length", "Length", GH_ParamAccess.item);
             pManager.AddNumberParameter("Width", "Width", "Width", GH_ParamAccess.item);
             pManager.AddNumberParameter("Height", "Height", "Height", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Number", "Number", "Number", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -49,11 +50,13 @@ namespace Workshop
             double iLength = 1.0;
             double iWidth = 1.0;
             double iHeight = 1.0;
+            double iNo = 1;
 
             DA.GetData(0, ref iBasePlane);
             DA.GetData(1, ref iLength);
             DA.GetData(2, ref iWidth);
             DA.GetData(3, ref iHeight);
+            DA.GetData(4, ref iNo);
 
             Pyramid myPyramid = new Pyramid(iBasePlane, iLength, iWidth, iHeight);
             List<LineCurve> displayLines = myPyramid.ComputeDisplayLines();
