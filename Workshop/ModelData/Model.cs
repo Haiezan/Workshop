@@ -148,7 +148,6 @@ namespace Workshop.ModelData
                 storyModel.Joints.Add(joint);
             }
         }
-        
         #endregion
 
         #region Grid
@@ -181,6 +180,7 @@ namespace Workshop.ModelData
             }
         }
         #endregion
+
         #region Beam
         /// <summary>
         /// 读取梁构件信息
