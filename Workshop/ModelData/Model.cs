@@ -18,18 +18,11 @@ namespace Workshop.ModelData
         public List<StoryModel> StdStoryModels = new List<StoryModel>();
         public List<StoryModel> StoryModels = new List<StoryModel>();
 
-
-        //List<Joint> Joints = new List<Joint>();
-        //List<Grid> Grids = new List<Grid>();
-
-        //List<Beam> Beams=new List<Beam>();
         List<BeamSect> BeamSects = new List<BeamSect>();
 
         List<ColSect> ColSects = new List<ColSect>();
-        //List<Column> Columns = new List<Column>();
 
         List<WallSect> WallSects = new List<WallSect>();
-        //List<Wall> Walls = new List<Wall>();
 
         #region StdFlr
         /// <summary>
@@ -451,11 +444,11 @@ namespace Workshop.ModelData
         #endregion
 
         #region Story
-        public List<Surface> GetModel(int iStart = 0, int iEnd = 0)
+        public void GetModel(int iStart = 0, int iEnd = 0)
         {
             if (iEnd == 0) iEnd = Floors.Count;
 
-            ClearModel();
+            //ClearModel();
 
             List<Surface> DisplaySurfaces = new List<Surface>();
 
@@ -466,16 +459,19 @@ namespace Workshop.ModelData
                 FloorSurface floorSurface = new FloorSurface();
 
                 floorSurface.ID = floor.ID;
+                floorSurface.No = floor.No;
                 floorSurface.StdFlrID = floor.StdFlrID;
                 floorSurface.Height = floor.Height;
                 floorSurface.Level = floor.LevelB;
 
-                floorSurface.DisplaySurface.AddRange(storyModel.SetLevel(floor.LevelB + floor.Height, floor.Height));
-                storyModel.FloorSurfaces.Add(floorSurface);
+                storyModel.SetLevel(floor.LevelB + floor.Height, floor.Height);
 
-                DisplaySurfaces.AddRange(floorSurface.DisplaySurface);
+                floorSurface.BeamSurface.AddRange(storyModel.GetBeamSurfaces());
+                floorSurface.ColumnSurface.AddRange(storyModel.GetColumnSurfaces());
+                floorSurface.WallSurface.AddRange(storyModel.GetWallSurfaces());
+
+                storyModel.FloorSurfaces.Add(floorSurface);
             }
-            return DisplaySurfaces;
         }
         private void ClearModel()
         {
@@ -483,6 +479,18 @@ namespace Workshop.ModelData
             {
                 storyModel.FloorSurfaces.Clear();
             }
+        }
+        //查找楼层
+        public FloorSurface GetFloorSurface(long i)
+        {
+            foreach(var storyMode in StdStoryModels)
+            {
+                foreach(var floorSurface in storyMode.FloorSurfaces)
+                {
+                    if (floorSurface.No == i) return floorSurface;
+                }
+            }
+            return null;
         }
         #endregion
     }

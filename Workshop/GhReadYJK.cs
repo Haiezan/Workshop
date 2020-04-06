@@ -18,9 +18,9 @@ namespace Workshop
           : base(
                 "ReadYJK", 
                 "YJK",
-                "Description",
-                "Workshop", 
-                "Subcategory")
+                "Read YJK ydb Model",
+                "BeamNotes", 
+                "Building")
         {
         }
 
@@ -29,8 +29,8 @@ namespace Workshop
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            //pManager.AddNumberParameter("Number", "Number", "Number", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("Level", "Number", "Number", GH_ParamAccess.item);
+            pManager.AddTextParameter("YDBfile", "YDBfile", "YDBfile", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Story", "Story", "Story Number", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -41,7 +41,9 @@ namespace Workshop
             //pManager.AddCurveParameter("DisplayGrids", "DisplayGrids", "DisplayGrids", GH_ParamAccess.list);
             //pManager.AddSurfaceParameter("DisplayBeams", "DisplayBeams", "DisplayBeams", GH_ParamAccess.list);
             //pManager.AddSurfaceParameter("DisplayColumns", "DisplayColumns", "DisplayColumns", GH_ParamAccess.list);
-            pManager.AddSurfaceParameter("Display", "Display", "Display", GH_ParamAccess.list);
+            pManager.AddSurfaceParameter("DisplayBeam", "Beam", "Display Beam Component", GH_ParamAccess.list);
+            pManager.AddSurfaceParameter("DisplayColumn", "Column", "Display Column Component", GH_ParamAccess.list);
+            pManager.AddSurfaceParameter("DisplayWall", "Wall", "Display Wall Component", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -50,12 +52,15 @@ namespace Workshop
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            double iNo=0;
-            double Levelnew = 0.0;
-            //DA.GetData(0, ref iNo);
+            double iStory=0;
+            string sAdd = null;
+            DA.GetData(0, ref sAdd);
+            DA.GetData(1, ref iStory);
+            
             //DA.GetData(1, ref Levelnew);
 
-            string sPath = @"D:\dtlmodel.ydb";
+            //string sPath = @"D:\dtlmodel.ydb";
+            string sPath = sAdd;
 
             Model model = new Model();
             model.Path = sPath;
@@ -76,16 +81,36 @@ namespace Workshop
             model.ReadWallSect();
             model.ReadWallData();
 
+            model.GetModel();
 
-            //List<LineCurve> displayGrids = model.GetGridLines();
-            //model.StdStoryModels[Convert.ToInt32(iNo)].SetLevel(Levelnew);
-            //List<Surface> display = model.StdStoryModels[Convert.ToInt32(iNo)].GetStoryModel();
-            List<Surface> display = model.GetModel();
+            List<Surface> displayBeam = new List<Surface>();
+            List<Surface> displayColumn= new List<Surface>();
+            List<Surface> displayWall = new List<Surface>();
 
-            //DA.SetDataList("DisplayGrids", displayGrids);
-            //DA.SetDataList("DisplayBeams", displayBeams);
-            //DA.SetDataList("DisplayColumns", displayColumns);
-            DA.SetDataList("Display", display);
+            if(iStory < 0.001)
+            {
+                foreach (var storyMode in model.StdStoryModels)
+                {
+                    foreach (var floorSurface in storyMode.FloorSurfaces)
+                    {
+                        displayBeam.AddRange(floorSurface.BeamSurface);
+                        displayColumn.AddRange(floorSurface.ColumnSurface);
+                        displayWall.AddRange(floorSurface.WallSurface);
+                    }
+                }
+            }
+            else
+            {
+                FloorSurface floorSurface = model.GetFloorSurface(Convert.ToInt32(iStory));
+                displayBeam.AddRange(floorSurface.BeamSurface);
+                displayColumn.AddRange(floorSurface.ColumnSurface);
+                displayWall.AddRange(floorSurface.WallSurface);
+            }
+
+            DA.SetDataList("DisplayBeam", displayBeam);
+            DA.SetDataList("DisplayColumn", displayColumn);
+            DA.SetDataList("DisplayWall", displayWall);
+            //DA.SetDataList("Model", display);
 
         }
          

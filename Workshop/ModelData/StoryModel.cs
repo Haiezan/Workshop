@@ -96,34 +96,62 @@ namespace Workshop.ModelData
             return DisplaySurfaces;
         }
 
-        //设置标高
-        public List<Surface> SetLevel(double newLevel, double newHeight = 0)
+        //设置楼层标高及层高
+        public void SetLevel(double newLevel, double newHeight = 0)
         {
             if(newHeight<1E-3)  newHeight = Height;
 
-            List<Surface> DisplaySurface = new List<Surface>();
             foreach(var joint in Joints)
             {
                 joint.Point.Z = newLevel;
             }
-            foreach(var beam in Beams)
+            foreach (var beam in Beams)
+            {
+                
+                beam.GetBeamSurface();
+            }
+            foreach (var column in Columns)
+            {
+                
+                column.ExtrudeDirection = new Vector3d(0, 0, -1 * newHeight);
+                column.GetColumnSurface();
+            }
+            foreach (var wall in Walls)
+            {
+                
+                wall.ExtrudeDirection = new Vector3d(0, 0, -1 * newHeight);
+                wall.GetWallSurface();
+            }
+        }
+        //获取各普通层Surface
+        public List<Surface> GetBeamSurfaces()
+        {
+            List<Surface> DisplaySurface = new List<Surface>();
+            foreach (var beam in Beams)
             {
                 beam.GetSectPolyLineCurve();
                 DisplaySurface.Add(beam.GetBeamSurface());
             }
-            foreach(var column in Columns)
+            return DisplaySurface;
+        }
+        public List<Surface> GetColumnSurfaces()
+        {
+            List<Surface> DisplaySurface = new List<Surface>();
+            foreach (var column in Columns)
             {
                 column.GetSectPolyLineCurve();
-                column.ExtrudeDirection= new Vector3d(0, 0, -1 * newHeight);
                 DisplaySurface.Add(column.GetColumnSurface());
             }
-            foreach(var wall in Walls)
+            return DisplaySurface;
+        }
+        public List<Surface> GetWallSurfaces()
+        {
+            List<Surface> DisplaySurface = new List<Surface>();
+            foreach (var wall in Walls)
             {
                 wall.GetSectPolyLineCurve();
-                wall.ExtrudeDirection = new Vector3d(0, 0, -1 * newHeight);
                 DisplaySurface.Add(wall.GetWallSurface());
             }
-
             return DisplaySurface;
         }
     }
