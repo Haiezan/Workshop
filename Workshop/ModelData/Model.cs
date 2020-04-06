@@ -455,6 +455,8 @@ namespace Workshop.ModelData
         {
             if (iEnd == 0) iEnd = Floors.Count;
 
+            ClearModel();
+
             List<Surface> DisplaySurfaces = new List<Surface>();
 
             for (int i = iStart; i < iEnd; i++) 
@@ -474,6 +476,13 @@ namespace Workshop.ModelData
                 DisplaySurfaces.AddRange(floorSurface.DisplaySurface);
             }
             return DisplaySurfaces;
+        }
+        private void ClearModel()
+        {
+            foreach(var storyModel in StoryModels)
+            {
+                storyModel.FloorSurfaces.Clear();
+            }
         }
         #endregion
     }
